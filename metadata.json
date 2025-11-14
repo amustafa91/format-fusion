@@ -1,0 +1,5 @@
+{
+  "name": "Format Fusion",
+  "description": "A tool to convert code snippets between various formats like JSON, YAML, and XML.",
+  "requestFramePermissions": []
+}
