@@ -13,6 +13,7 @@ const root = ReactDOM.createRoot(rootElement);
 
 // Inject GTM dynamically
 const gtmId = import.meta.env.VITE_GTM_ID;
+console.log('GTM ID from env:', gtmId); // Debug log
 if (gtmId) {
   const script = document.createElement('script');
   script.async = true;
@@ -26,6 +27,8 @@ if (gtmId) {
     })(window,document,'script','dataLayer','${gtmId}');
   `;
   document.head.appendChild(script);
+} else {
+  console.warn('VITE_GTM_ID environment variable is not set');
 }
 
 root.render(
