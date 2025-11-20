@@ -647,7 +647,7 @@ const App: React.FC = () => {
       <div className="flex-grow w-full max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_minmax(700px,_4fr)_1fr] gap-6 p-4 md:p-6 lg:p-8">
         
         <aside className="hidden lg:flex">
-          <div className="w-full h-full bg-secondary rounded-lg flex items-center justify-center text-slate-500 font-semibold text-sm">Ad Placeholder</div>
+          <div className="hidden w-full h-full bg-secondary rounded-lg flex items-center justify-center text-slate-500 font-semibold text-sm">Ad Placeholder</div>
         </aside>
 
         <main className="flex flex-col gap-6">
@@ -704,7 +704,7 @@ const App: React.FC = () => {
         </main>
 
         <aside className="hidden lg:flex">
-           <div className="w-full h-full bg-secondary rounded-lg flex items-center justify-center text-slate-500 font-semibold text-sm">Ad Placeholder</div>
+           <div className="hidden w-full h-full bg-secondary rounded-lg flex items-center justify-center text-slate-500 font-semibold text-sm">Ad Placeholder</div>
         </aside>
       </div>
     </div>
