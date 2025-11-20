@@ -11,6 +11,8 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,8 +27,6 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
