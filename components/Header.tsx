@@ -9,7 +9,7 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-center h-16">
           <div className="flex items-center">
-            <LogoIcon className="h-8 w-8 text-accent" />
+            <LogoIcon className="h-10 w-10 text-accent" />
             <h1 className="ml-3 text-2xl font-bold text-light tracking-tight">
               Format Fusion
             </h1>

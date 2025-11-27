@@ -301,108 +301,10 @@ const stringifyToon = (data: any): string => {
   return recurse(data, 0);
 };
 
-const parseDelimited = (text: string, delimiter: string): any[] => {
-  if (!text || text.trim() === '') {
-    return [];
-  }
-
-  const rows: string[][] = [];
-  let currentRow: string[] = [];
-  let currentField = '';
-  let inQuotedField = false;
-
-  // Normalize line endings
-  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    const nextChar = text[i + 1];
-
-    if (inQuotedField) {
-      if (char === '"') {
-        if (nextChar === '"') {
-          // This is an escaped quote
-          currentField += '"';
-          i++; // Skip the next quote
-        } else {
-          // End of quoted field
-          inQuotedField = false;
-        }
-      } else {
-        currentField += char;
-      }
-    } else {
-      if (char === '"' && currentField === '') {
-        // Start of a quoted field
-        inQuotedField = true;
-      } else if (char === delimiter) {
-        // End of a field
-        currentRow.push(currentField);
-        currentField = '';
-      } else if (char === '\n') {
-        // End of a row
-        currentRow.push(currentField);
-        rows.push(currentRow);
-        currentRow = [];
-        currentField = '';
-      } else {
-        currentField += char;
-      }
-    }
-  }
-
-  // Add the last field and row if the text doesn't end with a newline
-  currentRow.push(currentField);
-  rows.push(currentRow);
-
-  // Filter out rows that are completely empty
-  const nonEmptyRows = rows.filter(row => row.some(field => field.trim() !== ''));
-
-  if (nonEmptyRows.length < 1) {
-    return [];
-  }
-
-  const headers = nonEmptyRows.shift()!;
-  if (!headers) {
-    return [];
-  }
-
-  // If there are no data rows, return empty array
-  if (nonEmptyRows.length < 1) {
-    return [];
-  }
-
-  return nonEmptyRows.map(row => {
-    const obj: { [key: string]: string } = {};
-    headers.forEach((header, index) => {
-      obj[header] = row[index] ?? '';
-    });
-    return obj;
-  });
-};
 
 
-const stringifyDelimited = (data: any, delimiter: string): string => {
-  if (!Array.isArray(data) || data.length === 0) return '';
 
-  const escapeValue = (value: any): string => {
-    const strValue = String(value ?? '');
-    if (strValue.includes(delimiter) || strValue.includes('"') || strValue.includes('\n')) {
-      const escaped = strValue.replace(/"/g, '""');
-      return `"${escaped}"`;
-    }
-    return strValue;
-  };
 
-  const headers = Object.keys(data[0]);
-  const headerLine = headers.map(escapeValue).join(delimiter);
-
-  const lines = data.map(row => {
-    return headers.map(header => escapeValue(row[header])).join(delimiter);
-  });
-
-  return [headerLine, ...lines].join('\n');
-};
 
 const generateCodeForLanguage = (lang: string, data: any, rootName = 'Root'): string => {
   const definitions = new Map<string, string>();
@@ -502,8 +404,7 @@ const parseInput = (lang: LanguageOption, code: string) => {
       const rootKey = Object.keys(parsedXml)[0];
       return rootKey ? parsedXml[rootKey] : {};
     case 'toon': return parseToon(code);
-    case 'csv': return parseDelimited(code, ',');
-    case 'tsv': return parseDelimited(code, '\t');
+
     default: throw new Error('Unsupported source language');
   }
 };
@@ -516,8 +417,7 @@ const stringifyOutput = (lang: LanguageOption, data: any) => {
       const builder = new XMLBuilder({ format: true, indentBy: '  ' });
       return builder.build({ root: data });
     case 'toon': return stringifyToon(data);
-    case 'csv': return stringifyDelimited(data, ',');
-    case 'tsv': return stringifyDelimited(data, '\t');
+
     case 'typescript':
     case 'python':
     case 'go':

@@ -6,8 +6,6 @@ export const DATA_LANGUAGE_OPTIONS: LanguageOption[] = [
   { value: 'yaml', label: 'YAML' },
   { value: 'xml', label: 'XML' },
   { value: 'toon', label: 'TOON' },
-  { value: 'csv', label: 'CSV' },
-  { value: 'tsv', label: 'TSV' },
 ];
 
 export const CODE_LANGUAGE_OPTIONS: LanguageOption[] = [
