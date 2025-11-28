@@ -2,13 +2,26 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import yaml from 'js-yaml';
+import { encodingForModel } from "js-tiktoken";
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import { LanguageSelector } from './components/LanguageSelector';
 import { CodeEditor } from './components/CodeEditor';
 import { Header } from './components/Header';
+import { TokenStats } from './components/TokenStats';
 import { SwapIcon, AlertTriangleIcon } from './components/Icons';
 import { LANGUAGE_OPTIONS, DATA_LANGUAGE_OPTIONS, CODE_LANGUAGE_OPTIONS } from './constants';
 import type { LanguageOption } from './types';
+
+const enc = encodingForModel("gpt-4o");
+const countTokens = (text: string) => {
+  try {
+    return enc.encode(text).length;
+  } catch (e) {
+    console.error("Token counting error:", e);
+    return 0;
+  }
+};
+
 
 
 const parseToonValue = (val: string) => {
@@ -467,6 +480,16 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isInputValid, setIsInputValid] = useState<boolean>(true);
+  const [sourceTokens, setSourceTokens] = useState<number>(0);
+  const [targetTokens, setTargetTokens] = useState<number>(0);
+
+  useEffect(() => {
+    setSourceTokens(countTokens(inputCode));
+  }, [inputCode]);
+
+  useEffect(() => {
+    setTargetTokens(countTokens(outputCode));
+  }, [outputCode]);
 
   const isTargetCode = CODE_LANGUAGE_OPTIONS.some(l => l.value === targetLang.value);
 
@@ -564,6 +587,13 @@ const App: React.FC = () => {
             </button>
             <LanguageSelector label="To" selected={targetLang} onChange={setTargetLang} options={LANGUAGE_OPTIONS} />
           </div>
+
+          <TokenStats
+            sourceTokens={sourceTokens}
+            targetTokens={targetTokens}
+            sourceLabel={sourceLang.label}
+            targetLabel={targetLang.label}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
             <CodeEditor
