@@ -95,7 +95,24 @@ const parseToon = (text: string): any => {
         if (hasNestedBlock) {
           const [nestedValue, newIndex] = parseRecursively(lines[index].indent);
           index = newIndex;
-          itemValue = nestedValue;
+
+          if (lineContent) {
+            const separatorIndex = lineContent.indexOf(':');
+            if (separatorIndex !== -1) {
+              const key = lineContent.substring(0, separatorIndex).trim();
+              const valueStr = lineContent.substring(separatorIndex + 1).trim();
+              const value = parseToonValue(valueStr);
+              if (typeof nestedValue === 'object' && nestedValue !== null && !Array.isArray(nestedValue)) {
+                itemValue = { [key]: value, ...nestedValue };
+              } else {
+                itemValue = nestedValue;
+              }
+            } else {
+              itemValue = nestedValue;
+            }
+          } else {
+            itemValue = nestedValue;
+          }
 
         } else {
           itemValue = parseToonValue(lineContent);
@@ -559,10 +576,10 @@ const App: React.FC = () => {
     setOutputCode(inputCode);
   }, [sourceLang, targetLang, inputCode, outputCode, isTargetCode]);
 
-  // Convert on mount
+  // Convert on mount and when dependencies change (debounced)
   useEffect(() => {
     handleConvert();
-  }, []);
+  }, [handleConvert]);
 
   return (
     <div className="min-h-screen bg-primary font-sans flex flex-col">
