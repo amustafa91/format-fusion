@@ -158,7 +158,18 @@ const parseToon = (text: string): any => {
         continue;
       }
 
-      const separatorIndex = lineContent.indexOf(':');
+      let separatorIndex = lineContent.indexOf(':');
+      let valueStartIndex = separatorIndex + 1;
+
+      if (separatorIndex === -1) {
+        // Fallback: try whitespace separator
+        const whitespaceMatch = lineContent.match(/^([^\s]+)(\s+)/);
+        if (whitespaceMatch) {
+          separatorIndex = whitespaceMatch[1].length;
+          valueStartIndex = separatorIndex + whitespaceMatch[2].length;
+        }
+      }
+
       if (separatorIndex === -1) {
         if (lineContent.startsWith('-')) {
           return [obj, index];
@@ -167,7 +178,7 @@ const parseToon = (text: string): any => {
       }
 
       const key = lineContent.substring(0, separatorIndex).trim();
-      const valueStr = lineContent.substring(separatorIndex + 1).trim();
+      const valueStr = lineContent.substring(valueStartIndex).trim();
 
       const simpleListRegex = /^([\w-]+)\[(\d+)\]$/;
       const simpleListMatch = key.match(simpleListRegex);
