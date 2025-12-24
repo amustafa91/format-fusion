@@ -9,7 +9,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['js-tiktoken', 'fast-xml-parser'],
+          vendor: ['js-yaml', 'fast-xml-parser'],
         },
       },
     },
