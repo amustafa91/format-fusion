@@ -1,5 +1,3 @@
-
-
 import React, { useState, useCallback, useEffect } from 'react';
 import yaml from 'js-yaml';
 import { encodingForModel } from "js-tiktoken";
@@ -9,6 +7,8 @@ import { CodeEditor } from './components/CodeEditor';
 import { Header } from './components/Header';
 import { TokenStats } from './components/TokenStats';
 import { SwapIcon, AlertTriangleIcon } from './components/Icons';
+import { Select } from './components/Select';
+import { SeoContent } from './components/SeoContent';
 import { LANGUAGE_OPTIONS, DATA_LANGUAGE_OPTIONS, CODE_LANGUAGE_OPTIONS } from './constants';
 import type { LanguageOption } from './types';
 
@@ -204,15 +204,15 @@ const parseToon = (text: string): any => {
 };
 
 
-const stringifyToon = (data: any): string => {
-  const indent = '  ';
+const stringifyToon = (data: any, options: { indent: string, delimiter: string } = { indent: '  ', delimiter: ',' }): string => {
+  const { indent, delimiter } = options;
 
   const stringifyPrimitiveForTable = (value: any) => {
     if (value === null) return 'null';
     if (value === undefined) return '';
     if (typeof value === 'string') {
-      // Quote if it contains a comma, quote, or leading/trailing space.
-      if (value.includes(',') || value.includes('"') || value.trim() !== value) {
+      // Quote if it contains the delimiter, quote, or leading/trailing space.
+      if (value.includes(delimiter) || value.includes('"') || value.trim() !== value) {
         return `"${value.replace(/"/g, '\\"')}"`;
       }
       return value;
@@ -227,7 +227,7 @@ const stringifyToon = (data: any): string => {
     if (typeof value !== 'object') {
       if (typeof value === 'string') {
         const ambiguousValues = ['true', 'false', 'null'];
-        if (value.includes(':') || value.includes('#') || ambiguousValues.includes(value.toLowerCase()) || (value && !isNaN(Number(value)) && !/\s/.test(value))) {
+        if (value.includes(delimiter) || value.includes('#') || ambiguousValues.includes(value.toLowerCase()) || (value && !isNaN(Number(value)) && !/\s/.test(value))) {
           return `"${value.replace(/"/g, '\\"')}"`;
         }
         return value;
@@ -286,8 +286,8 @@ const stringifyToon = (data: any): string => {
         if (isSimplePrimitiveList) {
           const allSimpleValues = val.every(v => v === null || !String(v).includes('\n'));
           if (allSimpleValues) {
-            const compactValues = val.map(stringifyPrimitiveForTable).join(',');
-            return `${currentIndent}${key}[${val.length}]: ${compactValues}`;
+            const compactValues = val.map(stringifyPrimitiveForTable).join(delimiter);
+            return `${currentIndent}${key}[${val.length}]${delimiter}${compactValues}`;
           }
         }
 
@@ -307,10 +307,10 @@ const stringifyToon = (data: any): string => {
 
         if (isUniformListOfSimpleObjects) {
           const headers = Object.keys(val[0]);
-          const headerLine = `${currentIndent}${key}[${val.length}]{${headers.join(',')}}:`;
+          const headerLine = `${currentIndent}${key}[${val.length}]{${headers.join(delimiter)}}${delimiter}`;
           const dataLines = val.map(item => {
             const rowValues = headers.map(h => stringifyPrimitiveForTable((item as any)[h]));
-            return `${currentIndent}${indent}${rowValues.join(',')}`;
+            return `${currentIndent}${indent}${rowValues.join(delimiter)}`;
           }).join('\n');
           return `${headerLine}\n${dataLines}`;
         }
@@ -321,17 +321,15 @@ const stringifyToon = (data: any): string => {
       const isNested = (typeof val === 'object' && val !== null && valStr.trim() !== '' && !valStr.startsWith('['));
 
       if (isNested) {
-        return `${currentIndent}${key}:\n${valStr}`;
+        return `${currentIndent}${key}${delimiter}\n${valStr}`;
       } else {
-        return `${currentIndent}${key}: ${valStr}`;
+        return `${currentIndent}${key}${delimiter}${valStr}`;
       }
     }).filter(Boolean).join('\n');
   };
 
   return recurse(data, 0);
 };
-
-
 
 
 
@@ -439,14 +437,14 @@ const parseInput = (lang: LanguageOption, code: string) => {
   }
 };
 
-const stringifyOutput = (lang: LanguageOption, data: any) => {
+const stringifyOutput = (lang: LanguageOption, data: any, options?: { indent: string, delimiter: string }) => {
   switch (lang.value) {
     case 'json': return JSON.stringify(data, null, 2);
     case 'yaml': return yaml.dump(data);
     case 'xml':
       const builder = new XMLBuilder({ format: true, indentBy: '  ' });
       return builder.build({ root: data });
-    case 'toon': return stringifyToon(data);
+    case 'toon': return stringifyToon(data, options);
 
     case 'typescript':
     case 'python':
@@ -499,6 +497,8 @@ const App: React.FC = () => {
   const [isInputValid, setIsInputValid] = useState<boolean>(true);
   const [sourceTokens, setSourceTokens] = useState<number>(0);
   const [targetTokens, setTargetTokens] = useState<number>(0);
+  const [toonDelimiter, setToonDelimiter] = useState<string>('\t');
+  const [toonIndent, setToonIndent] = useState<string>('  ');
 
   useEffect(() => {
     setSourceTokens(countTokens(inputCode));
@@ -527,7 +527,7 @@ const App: React.FC = () => {
     setTimeout(() => {
       try {
         const parsedInput = parseInput(sourceLang, inputCode);
-        const output = stringifyOutput(targetLang, parsedInput);
+        const output = stringifyOutput(targetLang, parsedInput, { indent: toonIndent, delimiter: toonDelimiter });
         setOutputCode(output);
       } catch (err) {
         console.error(err);
@@ -537,7 +537,7 @@ const App: React.FC = () => {
         setIsLoading(false);
       }
     }, 200);
-  }, [inputCode, sourceLang, targetLang, isInputValid]);
+  }, [inputCode, sourceLang, targetLang, isInputValid, toonDelimiter, toonIndent]);
 
   useEffect(() => {
     if (!inputCode.trim()) {
@@ -605,6 +605,33 @@ const App: React.FC = () => {
             <LanguageSelector label="To" selected={targetLang} onChange={setTargetLang} options={LANGUAGE_OPTIONS} />
           </div>
 
+          {targetLang.value === 'toon' && (
+            <div className="flex flex-wrap gap-4 items-center justify-center">
+              <Select
+                label="Indentation"
+                value={toonIndent}
+                onChange={(e) => setToonIndent(e.target.value)}
+                options={[
+                  { value: '  ', label: '2 Spaces' },
+                  { value: '    ', label: '4 Spaces' },
+                ]}
+                className="w-40"
+              />
+              <Select
+                label="Delimiter"
+                value={toonDelimiter}
+                onChange={(e) => setToonDelimiter(e.target.value)}
+                options={[
+                  { value: '\t', label: 'Tab' },
+                  { value: ',', label: 'Comma (,)' },
+                  { value: ';', label: 'Semicolon (;)' },
+                  { value: '|', label: 'Pipe (|)' },
+                ]}
+                className="w-40"
+              />
+            </div>
+          )}
+
           <TokenStats
             sourceTokens={sourceTokens}
             targetTokens={targetTokens}
@@ -648,6 +675,7 @@ const App: React.FC = () => {
               </div>
             </div>
           )}
+          <SeoContent />
         </main>
 
         <aside className="hidden lg:flex">
