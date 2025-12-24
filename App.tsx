@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import yaml from 'js-yaml';
-import { encodingForModel } from "js-tiktoken";
+import type { Tiktoken } from "js-tiktoken";
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 import { LanguageSelector } from './components/LanguageSelector';
 import { CodeEditor } from './components/CodeEditor';
@@ -8,14 +8,16 @@ import { Header } from './components/Header';
 import { TokenStats } from './components/TokenStats';
 import { SwapIcon, AlertTriangleIcon } from './components/Icons';
 import { Select } from './components/Select';
-import { SeoContent } from './components/SeoContent';
+// SeoContent imported lazily below
 import { LANGUAGE_OPTIONS, DATA_LANGUAGE_OPTIONS, CODE_LANGUAGE_OPTIONS } from './constants';
 import type { LanguageOption } from './types';
 
-const enc = encodingForModel("gpt-4o");
-const countTokens = (text: string) => {
+const SeoContent = lazy(() => import('./components/SeoContent').then(module => ({ default: module.SeoContent })));
+
+const countTokens = (text: string, encoder: Tiktoken | null) => {
+  if (!encoder) return 0;
   try {
-    return enc.encode(text).length;
+    return encoder.encode(text).length;
   } catch (e) {
     console.error("Token counting error:", e);
     return 0;
@@ -500,13 +502,26 @@ const App: React.FC = () => {
   const [toonDelimiter, setToonDelimiter] = useState<string>('\t');
   const [toonIndent, setToonIndent] = useState<string>('  ');
 
-  useEffect(() => {
-    setSourceTokens(countTokens(inputCode));
-  }, [inputCode]);
+  const [encoder, setEncoder] = useState<Tiktoken | null>(null);
 
   useEffect(() => {
-    setTargetTokens(countTokens(outputCode));
-  }, [outputCode]);
+    import("js-tiktoken").then(({ encodingForModel }) => {
+      const enc = encodingForModel("gpt-4o");
+      setEncoder(enc);
+    }).catch(err => console.error("Failed to load tokenizer:", err));
+  }, []);
+
+  useEffect(() => {
+    if (encoder) {
+      setSourceTokens(countTokens(inputCode, encoder));
+    }
+  }, [inputCode, encoder]);
+
+  useEffect(() => {
+    if (encoder) {
+      setTargetTokens(countTokens(outputCode, encoder));
+    }
+  }, [outputCode, encoder]);
 
   const isTargetCode = CODE_LANGUAGE_OPTIONS.some(l => l.value === targetLang.value);
 
@@ -699,7 +714,9 @@ const App: React.FC = () => {
           </div>
         )}
 
-        <SeoContent />
+        <Suspense fallback={<div className="h-64 animate-pulse bg-white/5 rounded-xl mt-12" />}>
+          <SeoContent />
+        </Suspense>
       </main>
     </div>
   );
