@@ -568,6 +568,14 @@ const App: React.FC = () => {
     }
   };
 
+  const handleClear = () => {
+    setInputCode('');
+    setOutputCode('');
+    setError(null);
+    setSourceTokens(0);
+    setTargetTokens(0);
+  };
+
   const handleSwapLanguages = useCallback(() => {
     if (isTargetCode) return;
     setSourceLang(targetLang);
@@ -576,37 +584,41 @@ const App: React.FC = () => {
     setOutputCode(inputCode);
   }, [sourceLang, targetLang, inputCode, outputCode, isTargetCode]);
 
+  const handleFileUpload = (content: string) => {
+    setInputCode(content);
+  };
+
   // Convert on mount and when dependencies change (debounced)
   useEffect(() => {
     handleConvert();
   }, [handleConvert]);
 
   return (
-    <div className="min-h-screen bg-primary font-sans flex flex-col">
+    <div className="min-h-screen font-sans flex flex-col relative z-0">
+      {/* Background gradient handled in index.css body, but we can add a subtle overlay here if needed */}
       <Header />
-      <div className="flex-grow w-full max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_minmax(700px,_4fr)_1fr] gap-6 p-4 md:p-6 lg:p-8">
 
-        <aside className="hidden lg:flex">
-          <div className="hidden w-full h-full bg-secondary rounded-lg flex items-center justify-center text-slate-500 font-semibold text-sm">Ad Placeholder</div>
-        </aside>
+      <main className="flex-grow w-full max-w-7xl mx-auto p-4 md:p-8 flex flex-col gap-8">
 
-        <main className="flex flex-col gap-6">
-          <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">
-            <LanguageSelector label="From" selected={sourceLang} onChange={setSourceLang} options={DATA_LANGUAGE_OPTIONS} />
-            <button
-              onClick={handleSwapLanguages}
-              className="p-2 rounded-full bg-secondary hover:bg-accent transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-secondary"
-              aria-label="Swap languages"
-              disabled={isTargetCode}
-              title={isTargetCode ? "Cannot use a programming language as a source" : "Swap languages"}
-            >
-              <SwapIcon className="w-6 h-6" />
-            </button>
-            <LanguageSelector label="To" selected={targetLang} onChange={setTargetLang} options={LANGUAGE_OPTIONS} />
-          </div>
+        <div className="flex flex-col lg:flex-row gap-6 items-center justify-center p-6 backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl shadow-xl">
+          <LanguageSelector label="From" selected={sourceLang} onChange={setSourceLang} options={DATA_LANGUAGE_OPTIONS} />
 
-          {targetLang.value === 'toon' && (
-            <div className="flex flex-wrap gap-4 items-center justify-center">
+          <button
+            onClick={handleSwapLanguages}
+            className="p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-accent/50 text-slate-300 hover:text-accent transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Swap languages"
+            disabled={isTargetCode}
+            title={isTargetCode ? "Cannot use a programming language as a source" : "Swap languages"}
+          >
+            <SwapIcon className="w-6 h-6" />
+          </button>
+
+          <LanguageSelector label="To" selected={targetLang} onChange={setTargetLang} options={LANGUAGE_OPTIONS} />
+        </div>
+
+        {targetLang.value === 'toon' && (
+          <div className="flex flex-wrap gap-4 items-center justify-center animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-2 flex gap-4">
               <Select
                 label="Indentation"
                 value={toonIndent}
@@ -615,8 +627,9 @@ const App: React.FC = () => {
                   { value: '  ', label: '2 Spaces' },
                   { value: '    ', label: '4 Spaces' },
                 ]}
-                className="w-40"
+                className="w-40 bg-transparent border-none"
               />
+              <div className="w-px bg-white/10 my-1"></div>
               <Select
                 label="Delimiter"
                 value={toonDelimiter}
@@ -627,61 +640,67 @@ const App: React.FC = () => {
                   { value: ';', label: 'Semicolon (;)' },
                   { value: '|', label: 'Pipe (|)' },
                 ]}
-                className="w-40"
+                className="w-40 bg-transparent border-none"
               />
             </div>
-          )}
+          </div>
+        )}
 
-          <TokenStats
-            sourceTokens={sourceTokens}
-            targetTokens={targetTokens}
-            sourceLabel={sourceLang.label}
-            targetLabel={targetLang.label}
+        <TokenStats
+          sourceTokens={sourceTokens}
+          targetTokens={targetTokens}
+          sourceLabel={sourceLang.label}
+          targetLabel={targetLang.label}
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 flex-grow">
+          <CodeEditor
+            label="Source Code"
+            value={inputCode}
+            onChange={(e) => setInputCode(e.target.value)}
+            language={sourceLang.value}
+            isValid={isInputValid}
+            onFormat={handleFormatCode}
+            onClear={handleClear}
+            onFileUpload={handleFileUpload}
           />
+          <CodeEditor
+            label="Converted Code"
+            value={outputCode}
+            readOnly
+            language={targetLang.value}
+          />
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
-            <CodeEditor
-              label="Source Code"
-              value={inputCode}
-              onChange={(e) => setInputCode(e.target.value)}
-              language={sourceLang.value}
-              isValid={isInputValid}
-              onFormat={handleFormatCode}
-            />
-            <CodeEditor
-              label="Converted Code"
-              value={outputCode}
-              readOnly
-              language={targetLang.value}
-            />
-          </div>
+        <div className="text-center py-8">
+          <button
+            onClick={handleConvert}
+            disabled={isLoading || !isInputValid || !inputCode.trim()}
+            className="
+                group relative px-8 py-4 bg-transparent overflow-hidden rounded-xl bg-accent text-white font-bold shadow-2xl hover:shadow-accent/50 transition-all duration-300
+                disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
+              "
+          >
+            <div className="absolute inset-0 w-3 border-r-2 border-white/20 scale-[2] origin-bottom -rotate-12 transition-transform duration-700 group-hover:translate-x-[200px]"></div>
+            <span className="relative flex items-center gap-2">
+              {isLoading ? 'Converting...' : 'Convert Now'}
+              {!isLoading && <span className="group-hover:translate-x-1 transition-transform">→</span>}
+            </span>
+          </button>
+        </div>
 
-          <div className="text-center">
-            <button
-              onClick={handleConvert}
-              disabled={isLoading || !isInputValid || !inputCode.trim()}
-              className="bg-accent text-primary font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-violet-400 transition-all duration-300 transform hover:scale-105 disabled:bg-slate-500 disabled:cursor-not-allowed disabled:scale-100"
-            >
-              {isLoading ? 'Loading...' : 'Convert'}
-            </button>
-          </div>
-
-          {error && (
-            <div className="bg-red-900/50 border border-red-500 text-red-300 px-4 py-3 rounded-lg relative max-w-4xl mx-auto flex items-center" role="alert">
-              <AlertTriangleIcon className="w-6 h-6 mr-3 flex-shrink-0" />
-              <div>
-                <strong className="font-bold">Error: </strong>
-                <span className="block sm:inline">{error}</span>
-              </div>
+        {error && (
+          <div className="backdrop-blur-xl bg-red-950/30 border border-red-500/30 text-red-200 px-6 py-4 rounded-xl relative max-w-4xl mx-auto flex items-center shadow-lg animate-in fade-in slide-in-from-bottom-4" role="alert">
+            <AlertTriangleIcon className="w-6 h-6 mr-4 flex-shrink-0 text-red-400" />
+            <div>
+              <strong className="font-bold text-red-400">Error: </strong>
+              <span className="block sm:inline opacity-90">{error}</span>
             </div>
-          )}
-          <SeoContent />
-        </main>
+          </div>
+        )}
 
-        <aside className="hidden lg:flex">
-          <div className="hidden w-full h-full bg-secondary rounded-lg flex items-center justify-center text-slate-500 font-semibold text-sm">Ad Placeholder</div>
-        </aside>
-      </div>
+        <SeoContent />
+      </main>
     </div>
   );
 };
