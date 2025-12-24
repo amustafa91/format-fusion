@@ -12,6 +12,7 @@ export const Select: React.FC<SelectProps> = ({ label, options, className, ...pr
             <div className="relative">
                 <select
                     className="w-full bg-transparent border-none text-slate-200 text-sm px-3 pb-2 pt-0 focus:ring-0 outline-none appearance-none cursor-pointer"
+                    aria-label={label}
                     {...props}
                 >
                     {options.map((opt) => (
