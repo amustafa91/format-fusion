@@ -516,10 +516,15 @@ const App: React.FC = () => {
   const [encoder, setEncoder] = useState<Tiktoken | null>(null);
 
   useEffect(() => {
-    import("js-tiktoken").then(({ encodingForModel }) => {
-      const enc = encodingForModel("gpt-4o");
-      setEncoder(enc);
-    }).catch(err => console.error("Failed to load tokenizer:", err));
+    // Defer loading of heavy tokenizer to avoid blocking initial render/lighthouse
+    const timer = setTimeout(() => {
+      import("js-tiktoken").then(({ encodingForModel }) => {
+        const enc = encodingForModel("gpt-4o");
+        setEncoder(enc);
+      }).catch(err => console.error("Failed to load tokenizer:", err));
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
