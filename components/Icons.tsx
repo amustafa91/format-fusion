@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const LogoIcon = (props: React.HTMLAttributes<HTMLImageElement>) => (
-  <img src={`${import.meta.env.BASE_URL}assets/ff.png`} alt="Logo" {...props} />
+  <img src={`${import.meta.env.BASE_URL}assets/ff.png`} alt="Logo" width="40" height="40" {...props} />
 );
 
 export const SwapIcon = (props: React.SVGProps<SVGSVGElement>) => (

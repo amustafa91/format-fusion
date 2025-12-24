@@ -1,13 +1,3 @@
-import React, { useState, useId } from 'react';
-import { CopyIcon, CheckIcon, SparklesIcon } from './Icons';
-
-interface CodeEditorProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  label: string;
-  language?: string;
-  isValid?: boolean;
-  onFormat?: () => void;
-}
-
 import React, { useState, useId, useRef } from 'react';
 import { CopyIcon, CheckIcon, SparklesIcon, UploadIcon, TrashIcon } from './Icons';
 

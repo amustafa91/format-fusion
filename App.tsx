@@ -615,7 +615,7 @@ const App: React.FC = () => {
 
       <main className="flex-grow w-full max-w-7xl mx-auto p-4 md:p-8 flex flex-col gap-8">
 
-        <div className="flex flex-col lg:flex-row gap-6 items-center justify-center p-6 backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl shadow-xl">
+        <div className="flex flex-col lg:flex-row gap-6 items-center justify-center p-6 backdrop-blur-md bg-white/5 border border-white/10 rounded-2xl shadow-xl relative z-50">
           <LanguageSelector label="From" selected={sourceLang} onChange={setSourceLang} options={DATA_LANGUAGE_OPTIONS} />
 
           <button
