@@ -1,15 +1,6 @@
-import React from 'react';
-
-interface TokenStatsProps {
-    sourceTokens: number;
-    targetTokens: number;
-    sourceLabel: string;
-    targetLabel: string;
-}
 
 import React, { useState } from 'react';
 import { GlassCard } from './ui/GlassCard';
-import { CheckIcon } from './Icons';
 
 interface TokenStatsProps {
     sourceTokens: number;
@@ -29,7 +20,8 @@ export const TokenStats: React.FC<TokenStatsProps> = ({
     // Approximate cost for GPT-4o (Input $5.00 / 1M tokens, Output $15.00 / 1M tokens) is too complex for this simple UI
     // Let's us GPT-4o Input pricing ($5.00 / 1M) as a baseline reference for "Input Cost"
     const costPer1k = 0.005;
-    const estimatedCost = (sourceTokens / 1000) * costPer1k;
+    const estimatedSourceCost = (sourceTokens / 1000) * costPer1k;
+    const estimatedTargetCost = (targetTokens / 1000) * costPer1k;
 
     const savedPercentage = sourceTokens > 0
         ? Math.round(((sourceTokens - targetTokens) / sourceTokens) * 100)
@@ -65,9 +57,15 @@ export const TokenStats: React.FC<TokenStatsProps> = ({
             >
                 <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Est. Cost (GPT-4o)</span>
                 {showCost ? (
-                    <div className="flex flex-col items-center animate-in fade-in zoom-in duration-200">
-                        <span className="text-xl font-bold text-accent">${estimatedCost.toFixed(5)}</span>
-                        <span className="text-[10px] text-slate-500 mt-1">Input only ($5/1M)</span>
+                    <div className="flex flex-col items-center w-full animate-in fade-in zoom-in duration-200">
+                        <div className="flex justify-between w-full px-2 text-xs text-slate-500 mb-1">
+                            <span>In:</span>
+                            <span className="font-mono text-accent">${estimatedSourceCost.toFixed(5)}</span>
+                        </div>
+                        <div className="flex justify-between w-full px-2 text-xs text-slate-500">
+                            <span>Out:</span>
+                            <span className="font-mono text-accent opacity-80">${estimatedTargetCost.toFixed(5)}</span>
+                        </div>
                     </div>
                 ) : (
                     <div className="flex items-center gap-2 text-slate-300 group-hover:text-white transition-colors">

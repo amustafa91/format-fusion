@@ -42,8 +42,8 @@ const parseToonValue = (val: string) => {
   return s;
 };
 
-// Parses a comma-separated list, respecting quotes.
-const parseCommaSeparated = (line: string): string[] => {
+// Parses a list with a specific delimiter, respecting quotes.
+const parseList = (line: string, delimiter: string = ','): string[] => {
   const result: string[] = [];
   let current = '';
   let inQuote = false;
@@ -54,7 +54,7 @@ const parseCommaSeparated = (line: string): string[] => {
       i++; // Skip the quote
     } else if (char === '"') {
       inQuote = !inQuote;
-    } else if (char === ',' && !inQuote) {
+    } else if (char === delimiter && !inQuote) {
       result.push(current);
       current = '';
     } else {
@@ -62,7 +62,6 @@ const parseCommaSeparated = (line: string): string[] => {
     }
   }
   result.push(current);
-  // We pass the raw values (including quotes) to parseToonValue
   return result.map(v => v.trim());
 };
 
@@ -70,7 +69,7 @@ const parseCommaSeparated = (line: string): string[] => {
 const parseToon = (text: string): any => {
   const lines = text.split('\n').map(line => ({
     indent: line.search(/\S|$/),
-    content: line.trim(),
+    content: line.trimStart(),
   })).filter(line => line.content && !line.content.startsWith('#'));
 
   if (lines.length === 0) return null;
@@ -99,7 +98,10 @@ const parseToon = (text: string): any => {
           index = newIndex;
 
           if (lineContent) {
-            const separatorIndex = lineContent.indexOf(':');
+            // Find first occurrence of a valid separator
+            const separatorMatch = lineContent.match(/[:,\t;|]/);
+            const separatorIndex = separatorMatch ? separatorMatch.index! : -1;
+
             if (separatorIndex !== -1) {
               const key = lineContent.substring(0, separatorIndex).trim();
               const valueStr = lineContent.substring(separatorIndex + 1).trim();
@@ -128,13 +130,17 @@ const parseToon = (text: string): any => {
     while (index < lines.length && lines[index].indent === currentIndent) {
       const lineContent = lines[index].content;
 
-      const tableHeaderRegex = /^([\w-]+)\[(\d+)\]\{([\w,]+)\}:$/;
+      // Regex to match table headers with flexible delimiter
+      // Captures: 1=Key, 2=Count, 3=Headers Content, 4=End Delimiter
+      const tableHeaderRegex = /^([\w-]+)\[(\d+)\]\{(.+)\}([:,\t;|])$/;
       const tableMatch = lineContent.match(tableHeaderRegex);
 
       if (tableMatch) {
         const key = tableMatch[1];
         const count = parseInt(tableMatch[2], 10);
-        const headers = tableMatch[3].split(',');
+        const endDelimiter = tableMatch[4];
+        // The headers themselves are separated by the SAME delimiter
+        const headers = parseList(tableMatch[3], endDelimiter);
         const list = [];
 
         index++; // consume header line
@@ -144,7 +150,8 @@ const parseToon = (text: string): any => {
           let rowsAdded = 0;
           while (index < lines.length && lines[index].indent === expectedIndent && rowsAdded < count) {
             const rowContent = lines[index].content;
-            const values = parseCommaSeparated(rowContent);
+            // Rows are parsed using the same delimiter found in the header line
+            const values = parseList(rowContent, endDelimiter);
             const itemObj: { [key: string]: any } = {};
             headers.forEach((header, i) => {
               itemObj[header] = parseToonValue(values[i] || '');
@@ -158,7 +165,10 @@ const parseToon = (text: string): any => {
         continue;
       }
 
-      let separatorIndex = lineContent.indexOf(':');
+      // Find first occurrence of a valid separator
+      const separatorMatch = lineContent.match(/[:,\t;|]/);
+      let separatorIndex = separatorMatch ? separatorMatch.index! : -1;
+
       let valueStartIndex = separatorIndex + 1;
 
       if (separatorIndex === -1) {
@@ -186,7 +196,8 @@ const parseToon = (text: string): any => {
       if (simpleListMatch) {
         const listKey = simpleListMatch[1];
         const count = parseInt(simpleListMatch[2], 10);
-        const values = parseCommaSeparated(valueStr).map(v => parseToonValue(v));
+        const currentDelimiter = separatorMatch ? separatorMatch[0] : ',';
+        const values = parseList(valueStr, currentDelimiter).map(v => parseToonValue(v));
         if (count !== values.length) {
           console.warn(`TOON Parse Warning: List count mismatch for key "${listKey}". Expected ${count}, found ${values.length}.`);
         }
@@ -199,7 +210,12 @@ const parseToon = (text: string): any => {
 
       if (valueStr.startsWith('[') && valueStr.endsWith(']')) {
         const listContent = valueStr.slice(1, -1);
-        const values = parseCommaSeparated(listContent);
+        // Lists usually use comma, but let's try to detect if the line separator was different?
+        // Actually, stringifyToon uses the SAME delimiter for flow lists?
+        // Let's check stringifyToon: "const compactValues = val.map(...).join(delimiter);"
+        // So yes, we should use the detected separator.
+        const currentDelimiter = separatorMatch ? separatorMatch[0] : ',';
+        const values = parseList(listContent, currentDelimiter);
         obj[key] = values.map(v => parseToonValue(v));
       } else if (valueStr === '' && index < lines.length && lines[index].indent > currentIndent) {
         const [nestedValue, newIndex] = parseRecursively(lines[index].indent);
