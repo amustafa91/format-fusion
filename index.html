@@ -101,7 +101,49 @@
 </head>
 
 <body class="bg-primary text-dark-text">
-  <!-- Google Tag Manager (noscript) injected dynamically by index.tsx -->
+  <!-- GitHub Pages SPA redirect handling -->
+  <script>
+    (function (l) {
+      if (l.search[1] === '/') {
+        var decoded = l.search.slice(1).split('&').map(function (s) {
+          return s.replace(/~and~/g, '&')
+        }).join('?');
+        window.history.replaceState(null, null,
+          l.pathname.slice(0, -1) + decoded + l.hash
+        );
+      }
+    }(window.location))
+  </script>
+
+  <!-- Noscript fallback for SEO and accessibility -->
+  <noscript>
+    <div
+      style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: system-ui, sans-serif; color: #e2e8f0;">
+      <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Format Fusion - Free GPT Token Counter &amp; Data Converter
+      </h1>
+      <p style="font-size: 1.25rem; margin-bottom: 2rem;">Count tokens for GPT-4, GPT-3.5, and Claude using tiktoken.
+        Convert between JSON, YAML, XML, and Toon. Generate TypeScript, Python, Go, and Rust types instantly.</p>
+
+      <h2 style="font-size: 1.5rem; margin-top: 2rem;">Features</h2>
+      <ul style="line-height: 2;">
+        <li><strong>GPT Token Counter</strong> - Accurately count tokens using the official tiktoken library</li>
+        <li><strong>JSON to TypeScript</strong> - Generate TypeScript interfaces from JSON automatically</li>
+        <li><strong>Data Format Converter</strong> - Convert between JSON, YAML, XML, and Toon formats</li>
+        <li><strong>Code Generator</strong> - Generate Go structs, Python dataclasses, Rust structs, and more</li>
+        <li><strong>100% Client-Side</strong> - Your data never leaves your browser</li>
+      </ul>
+
+      <h2 style="font-size: 1.5rem; margin-top: 2rem;">Popular Tools</h2>
+      <ul style="line-height: 2;">
+        <li><a href="/blog/gpt-token-counter" style="color: #60a5fa;">How to Count GPT-4 Tokens Online</a></li>
+        <li><a href="/blog/json-to-typescript" style="color: #60a5fa;">JSON to TypeScript Converter Guide</a></li>
+        <li><a href="/blog/toon-format-guide" style="color: #60a5fa;">What is the Toon Format?</a></li>
+      </ul>
+
+      <p style="margin-top: 2rem; color: #94a3b8;">JavaScript is required for the interactive tool. Please enable
+        JavaScript to use Format Fusion.</p>
+    </div>
+  </noscript>
 
   <div id="root"></div>
   <script type="module" src="./index.tsx"></script>

@@ -1,7 +1,12 @@
 // index.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App';
+import BlogList from './blog/BlogList';
+import GptTokenCounterArticle from './blog/articles/gpt-token-counter';
+import JsonToTypescriptArticle from './blog/articles/json-to-typescript';
+import ToonFormatGuideArticle from './blog/articles/toon-format-guide';
 import './index.css';
 
 const rootElement = document.getElementById('root');
@@ -33,6 +38,14 @@ if (gtmId) {
 
 root.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/blog" element={<BlogList />} />
+        <Route path="/blog/gpt-token-counter" element={<GptTokenCounterArticle />} />
+        <Route path="/blog/json-to-typescript" element={<JsonToTypescriptArticle />} />
+        <Route path="/blog/toon-format-guide" element={<ToonFormatGuideArticle />} />
+      </Routes>
+    </BrowserRouter>
   </React.StrictMode>
 );
