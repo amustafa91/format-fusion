@@ -6,26 +6,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- SEO -->
-  <title>Format Fusion - Free Online Code & Data Converter</title>
+  <title>Format Fusion - GPT Token Counter | Toon, JSON, XML Converter</title>
   <meta name="description"
-    content="Instantly convert data between JSON, YAML, XML, CSV, and more, or generate code definitions from your data for TypeScript, Python, Go, Rust, Java, and C#. A fast, free, and easy-to-use online developer tool." />
+    content="Free online GPT token counter (tiktoken) and code converter. Count tokens for GPT-4, GPT-3.5. Convert JSON, Toon, YAML, XML, and generate TypeScript, Python, Go, Rust types." />
   <meta name="keywords"
-    content="json converter, yaml converter, xml converter, csv converter, toon converter, data format, code converter, online tool, developer tools, free converter, type generator, json to typescript, json to python, json to go struct, json to rust struct, json to java class, json to csharp class" />
-  <link rel="canonical" href="https://www.formatfusion.com/" />
+    content="token counter, gpt token counter, tiktoken, openai token cost, context window, gpt-4 tokens, toon converter, toon to json, json to toon, toon format, json converter, yaml converter, xml converter, data format, code converter, online tool, developer tools, free converter, type generator, json to typescript, json to python, json to go struct, json to rust struct, json to java class, json to csharp class" />
+  <link rel="canonical" href="https://format-fusion.com/" />
+  <link rel="icon" type="image/png" href="/assets/ff.png" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.formatfusion.com/" />
-  <meta property="og:title" content="Format Fusion - Free Online Code & Data Converter" />
+  <meta property="og:url" content="https://format-fusion.com/" />
+  <meta property="og:title" content="Format Fusion - GPT Token Counter | Toon, JSON, XML Converter" />
   <meta property="og:description"
-    content="Instantly convert data between JSON, YAML, XML, and more, or generate code definitions for various languages." />
+    content="Free online GPT token counter (tiktoken) and code converter. Count tokens for GPT-4, GPT-3.5. Convert JSON, Toon, YAML, XML, and generate TypeScript, Python, Go, Rust types." />
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary" />
-  <meta property="twitter:url" content="https://www.formatfusion.com/" />
-  <meta property="twitter:title" content="Format Fusion - Free Online Code & Data Converter" />
+  <meta property="twitter:url" content="https://format-fusion.com/" />
+  <meta property="twitter:title" content="Format Fusion - GPT Token Counter | Toon, JSON, XML Converter" />
   <meta property="twitter:description"
-    content="Instantly convert data between JSON, YAML, XML, and more, or generate code definitions for various languages." />
+    content="Free online GPT token counter (tiktoken) and code converter. Count tokens for GPT-4, GPT-3.5. Convert JSON, Toon, YAML, XML, and generate TypeScript, Python, Go, Rust types." />
 
   <!-- Security -->
   <meta http-equiv="Content-Security-Policy" content="
@@ -36,6 +37,9 @@
     frame-src 'self' https://www.googletagmanager.com;
     img-src 'self' data:;">
 
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://www.google-analytics.com">
+
   <!-- Google Tag Manager injected dynamically by index.tsx -->
 
   <script type="application/ld+json">
@@ -44,7 +48,7 @@
   "@type": "SoftwareApplication",
   "name": "Format Fusion",
   "operatingSystem": "WEB",
-  "application Category": "DeveloperApplication",
+  "applicationCategory": "DeveloperApplication",
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
@@ -55,17 +59,95 @@
     "price": "0",
     "priceCurrency": "USD"
   },
-  "description": "A free online tool to convert data formats (JSON, YAML, XML, CSV) and generate code definitions for various programming languages."
+  "description": "A free online tool to convert data formats (JSON, YAML, XML) and generate code definitions for various programming languages."
 }
 </script>
-  <script type="module" crossorigin src="/format-fusion/assets/index-DNfY4xMI.js"></script>
-  <link rel="stylesheet" crossorigin href="/format-fusion/assets/index-DuSY43YI.css">
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [{
+    "@type": "Question",
+    "name": "How do I count tokens for GPT-4?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Simply paste your text or code into the Source editor. The tool automatically calculates the token count based on the Tiktoken encoding used by GPT-4 and GPT-3.5."
+    }
+  }, {
+    "@type": "Question",
+    "name": "Is my data secure?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. All processing—token counting, file parsing, and conversion—happens locally in your browser. Your code and files are never sent to any server."
+    }
+  }, {
+    "@type": "Question",
+    "name": "What is the Toon format?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Toon is a concise, human-readable data format designed for config files. It uses significant whitespace and minimal punctuation, making it cleaner than JSON or XML."
+    }
+  }, {
+    "@type": "Question",
+    "name": "Can I convert JSON to Go Structs?",
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Absolutely. Paste your JSON, select Go as the target language, and we will generate the corresponding Go struct definitions with properly tagged fields."
+    }
+  }]
+}
+</script>
+  <script type="module" crossorigin src="/assets/index-BJdaVDhn.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-CWNRktWU.css">
 </head>
 
 <body class="bg-primary text-dark-text">
-  <!-- Google Tag Manager (noscript) injected dynamically by index.tsx -->
+  <!-- GitHub Pages SPA redirect handling -->
+  <script>
+    (function (l) {
+      if (l.search[1] === '/') {
+        var decoded = l.search.slice(1).split('&').map(function (s) {
+          return s.replace(/~and~/g, '&')
+        }).join('?');
+        window.history.replaceState(null, null,
+          l.pathname.slice(0, -1) + decoded + l.hash
+        );
+      }
+    }(window.location))
+  </script>
 
-  <div id="root"></div>
+  <!-- Noscript fallback for SEO and accessibility -->
+  <noscript>
+    <div
+      style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: system-ui, sans-serif; color: #e2e8f0;">
+      <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Format Fusion - Free GPT Token Counter &amp; Data Converter
+      </h1>
+      <p style="font-size: 1.25rem; margin-bottom: 2rem;">Count tokens for GPT-4, GPT-3.5, and Claude using tiktoken.
+        Convert between JSON, YAML, XML, and Toon. Generate TypeScript, Python, Go, and Rust types instantly.</p>
+
+      <h2 style="font-size: 1.5rem; margin-top: 2rem;">Features</h2>
+      <ul style="line-height: 2;">
+        <li><strong>GPT Token Counter</strong> - Accurately count tokens using the official tiktoken library</li>
+        <li><strong>JSON to TypeScript</strong> - Generate TypeScript interfaces from JSON automatically</li>
+        <li><strong>Data Format Converter</strong> - Convert between JSON, YAML, XML, and Toon formats</li>
+        <li><strong>Code Generator</strong> - Generate Go structs, Python dataclasses, Rust structs, and more</li>
+        <li><strong>100% Client-Side</strong> - Your data never leaves your browser</li>
+      </ul>
+
+      <h2 style="font-size: 1.5rem; margin-top: 2rem;">Popular Tools</h2>
+      <ul style="line-height: 2;">
+        <li><a href="/blog/gpt-token-counter" style="color: #60a5fa;">How to Count GPT-4 Tokens Online</a></li>
+        <li><a href="/blog/json-to-typescript" style="color: #60a5fa;">JSON to TypeScript Converter Guide</a></li>
+        <li><a href="/blog/toon-format-guide" style="color: #60a5fa;">What is the Toon Format?</a></li>
+      </ul>
+
+      <p style="margin-top: 2rem; color: #94a3b8;">JavaScript is required for the interactive tool. Please enable
+        JavaScript to use Format Fusion.</p>
+    </div>
+  </noscript>
+
+  <div id="root"></div>
 </body>
 
 </html>
